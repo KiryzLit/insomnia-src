@@ -1,11 +1,11 @@
 print("RATTED!!")
-client.color_log(175,124,255, "[igrok] lua by moonrise")
-client.color_log(175,124,255, "[igrok] telegram - @xannyperc")
+client.color_log(255,255,255, "[igrok] lua by arlekin music")
+client.color_log(255,255,255, "[igrok] telegram - @code1080ti")
 
                   peg_loader = {}
                   peg_loader.fetch = function()
                     local build = 'beta'
-                    local user = 'admin'
+                    local user = client.get_cvar("name")
                     return build, user
                   end
                 local ffi = require("ffi")
@@ -16,28 +16,6 @@ local clipboard = require("gamesense/clipboard")
 local vector = require("vector")
 local json = require("json")
 local trace = require "gamesense/trace"
-
-local authorized = false
-local username, password = nil, nil
-local correct_username, correct_password = "bratan", "1337"
-
-local function handle_console_input(input)
-    if not input or input == "" then return end
-    local args = {}
-    for word in input:gmatch("%S+") do
-        table.insert(args, word)
-    end
-    if args[1] == "login" and #args == 3 then
-        username, password = args[2], args[3]
-        if username == correct_username and password == correct_password then
-            authorized = true
-            client.log("I G R O K: Authorized successfully, bro!")
-        else
-            authorized = false
-            client.log("I G R O K: Wrong username or password, try again!")
-        end
-    end
-end
 
 local lua_db = {configs = ':infinix:"cfg_test:'}
 
@@ -144,11 +122,11 @@ local short_cond = { 'G', 'S', 'W', 'R' ,'A', 'A+C', 'C', 'C+M', 'M', 'L', 'F', 
 
 local lua_menu = {
     main_owned = {
-        sigma = fakelag_group:label("                 ~ igrok ~                 "),
-        sigma1 = fakelag_group:label("                  ~ beta ~                  "),
+        sigma = fakelag_group:label("                                "),
+        sigma1 = fakelag_group:label("                                 "),
     },
     main = {
-        tab = lua_group:combobox('igrok ~ \v'..username, {"☯ Anti-Aim ☯", "★ Visuals ★", "❄ Misc ❄", "♦ Config ♦"}),
+        tab = lua_group:combobox('igrok beta ~ \v'..username, {"Anti-Aim", "Visuals", "Misc", "Config"}),
     },
     antiaim = {
         tab = lua_group:combobox("Tab", {"Main", "Builder"}),
@@ -190,6 +168,8 @@ local lua_menu = {
         antibackstab = lua_group:checkbox('Avoid Backstab'),
         fast_ladder = lua_group:checkbox("Fast Ladder"),
         console = lua_group:checkbox("Console Filter"),
+        trashtalkr = lua_group:checkbox("Trash Talk"),
+        clantag = lua_group:checkbox("Clan Tag"),
         third_person = lua_group:checkbox("Third Person Distance"),
         third_person_value = lua_group:slider("Third Person Distance Value", 30, 200, 50),
         aspectratio = lua_group:checkbox("Aspect Ratio"),
@@ -197,10 +177,10 @@ local lua_menu = {
         airqs = lua_group:checkbox("In Air Scout AutoStop"),
         airqsbind = lua_group:hotkey("In Air Scout AutoStop", true),
         defensive_fix = lua_group:checkbox("Defensive Fix"),
-        fix_pvs_animation = lua_group:checkbox("Fix pvs animation"),
+        fix_pvs_animation = lua_group:checkbox("?"),
         unsafe_recharge = lua_group:checkbox("Unsafe Recharge In Air"),
-        unsafe_type = lua_group:combobox('Type', {'Default', 'Alternative'}),
-        predict = lua_group:checkbox("Predict"),
+        unsafe_type = lua_group:combobox('Type', {'Default', 'Secret'}),
+        predict = lua_group:checkbox("ULTRA MEGA PREDICTION SYSTEM"),
     },
     config = {
         list = lua_group:listbox("\vConfigs", ""),
@@ -259,10 +239,10 @@ for i=1, #antiaim_cond do
     }
 end
 
-local aa_tab = {lua_menu.main.tab, "☯ Anti-Aim ☯"}
-local misc_tab = {lua_menu.main.tab, "❄ Misc ❄"}
-local visual_tab = {lua_menu.main.tab, "★ Visuals ★"}
-local config_tab = {lua_menu.main.tab, "♦ Config ♦"}
+local aa_tab = {lua_menu.main.tab, "Anti-Aim"}
+local misc_tab = {lua_menu.main.tab, "Misc"}
+local visual_tab = {lua_menu.main.tab, "Visuals"}
+local config_tab = {lua_menu.main.tab, "Config"}
 local aa_builder = {lua_menu.antiaim.tab, "Builder"}
 local aa_main = {lua_menu.antiaim.tab, "Main"}
 
@@ -307,6 +287,8 @@ lua_menu.visuals.ragebot_logs_miss:depend(visual_tab, {lua_menu.visuals.ragebot_
 lua_menu.misc.antibackstab:depend(misc_tab)
 lua_menu.misc.fast_ladder:depend(misc_tab)
 lua_menu.misc.console:depend(misc_tab)
+lua_menu.misc.trashtalkr:depend(misc_tab)
+lua_menu.misc.clantag:depend(misc_tab)
 lua_menu.misc.third_person:depend(misc_tab)
 lua_menu.misc.third_person_value:depend(misc_tab, {lua_menu.misc.third_person, true})
 lua_menu.misc.aspectratio:depend(misc_tab)
@@ -333,7 +315,7 @@ for i=1, #antiaim_cond do
     local cond_check = {lua_menu.antiaim.condition, function() return (i ~= 1) end}
     local tab_cond = {lua_menu.antiaim.condition, antiaim_cond[i]}
     local cnd_en = {antiaim_system[i].enable, function() if (i == 1) then return true else return antiaim_system[i].enable:get() end end}
-    local aa_tab = {lua_menu.main.tab, "☯ Anti-Aim ☯"}
+    local aa_tab = {lua_menu.main.tab, "Anti-Aim"}
     local jit_ch = {antiaim_system[i].mod_type, function() return antiaim_system[i].mod_type:get() ~= "Off" end}
     local def_jit_ch = {antiaim_system[i].def_mod_type, function() return antiaim_system[i].def_mod_type:get() ~= "Off" end}
     local def_ch = {antiaim_system[i].defensive, true}
@@ -1636,7 +1618,7 @@ local function unsafe_charge(cmd)
     if is_hittable and not check_charge() and ui.get(ref.doubletap.main[1]) and ui.get(ref.doubletap.main[2]) then
         if in_air then
             ui.set(ref.aimbot, false)
-        elseif lua_menu.misc.unsafe_type:get() == 'Alternative' and not can_shoot then
+        elseif lua_menu.misc.unsafe_type:get() == 'Secret' and not can_shoot then
             ui.set(ref.aimbot, false)
         else
             ui.set(ref.aimbot, true)
@@ -1656,6 +1638,139 @@ local function aspectratio(value)
     if value then
         cvar.r_aspectratio:set_float(value)
     end
+end
+
+local phrases = {
+    "СОБИРАЕМ НА ДЕП У ЦЕРКВИ, ДЕНЬ 2",
+    "𝕆𝕎ℕ𝔼𝔻 𝔹𝕐 ℝ𝕌𝕊𝕊𝕀𝔸ℕ 𝔾𝔸ℕ𝔾",
+    "я слегка на паранойе, бля, мне нужен Pfizer",
+    "я не лезу в телевидение, нахуй мне ваше видение",
+    "1",
+    "gamesense.pub ft. igrok.lua",
+    "1 моча",
+    "1",
+    "𝓽𝓻𝓾𝓮 𝓻𝓮𝓵𝓲𝓰𝓲𝓸𝓷",
+    "𝐜𝐚𝐩𝐢𝐭𝐚𝐥 𝐛𝐫𝐚 - 𝐤𝐨𝐦𝐦 𝐤𝐨𝐦𝐦",
+    "в ушах 𝐂𝐎𝐃𝐄𝟏𝟎, на теле худак 𝐕𝐄𝐓𝐄𝐌𝐄𝐍𝐓𝐒",
+    "#ВШАРЕН",
+    "п̲о̲ч̲е̲м̲у̲ т̲ы̲ т̲а̲к̲о̲й̲ х̲у̲ё̲в̲ы̲й̲?",
+    "vinted xdd",
+    "Я взрываю жирный стейк и я взрываю жирный член",
+    "Будто космос, я в линзах Dolce",
+    "ceo of wallapop xD",
+    "percgod",
+    "ᴧиᴋʙидиᴩоʙᴀн",
+    "1",
+    "капец ты лейм xd",
+    "#корольфинансов",
+    "гад дем чувак xD",
+    "я читер",
+    "@code1080ti",
+    "ʍиᴄᴄᴀᴇᴛ чиᴛ? ᴛᴀᴨᴀюᴛ ᴄ 1 ᴨуᴧи? - @code1080ti",
+    "data404",
+    "anonymous ember",
+    "зачем я тебя убил? -прост.",
+    "scalevillain",
+    "arlekin40000",
+    "улетел нахуй"
+}
+
+local function trashtalk(e)
+    if e == nil then
+        return
+    end
+
+if not ui.get(lua_menu.misc.trashtalkr.ref) then
+    return
+end
+
+    local victim_userid, attacker_userid = e.userid, e.attacker
+    if victim_userid == nil or attacker_userid == nil then
+        return
+    end
+
+    local victim_entindex   = client.userid_to_entindex(victim_userid)
+    local attacker_entindex = client.userid_to_entindex(attacker_userid)
+    if attacker_entindex == entity.get_local_player() and entity.is_enemy(victim_entindex) then
+        local phrase = phrases[math.random(1, #phrases)]
+        local say = 'say ' .. phrase
+        client.exec(say)
+    end
+end
+
+local clan_tags = {"", "i", "ig", "igr", "igro", "igrok", "igrok", "igro", "igr", "ig", "i", ""}
+local last_step = -1
+local frame_interval = 16
+
+local function clantag()
+    local enabled = ui.get(lua_menu.misc.clantag.ref)
+    local server_tick = globals.tickcount()
+    local current_step = math.floor(server_tick / frame_interval)
+
+    if not enabled then
+        if last_step ~= -1 then
+            client.set_clan_tag("")
+            last_step = -1
+        end
+        return
+    end
+    
+    if last_step == current_step then return end
+    
+    local new_index = (current_step % #clan_tags) + 1
+    client.set_clan_tag(clan_tags[new_index])
+    last_step = current_step
+end
+
+local function hsv_to_rgb(h, s, v)
+    local c, x = v * s, v * s * (1 - math.abs((h * 6) % 2 - 1))
+    local m = v - c
+    local r, g, b = 0, 0, 0
+
+    if h < 1/6 then r, g, b = c, x, 0
+    elseif h < 2/6 then r, g, b = x, c, 0
+    elseif h < 3/6 then r, g, b = 0, c, x
+    elseif h < 4/6 then r, g, b = 0, x, c
+    elseif h < 5/6 then r, g, b = x, 0, c
+    else r, g, b = c, 0, x
+    end
+
+    return math.floor((r + m) * 255), math.floor((g + m) * 255), math.floor((b + m) * 255)
+end
+
+---local function fade_alpha(min_alpha, max_alpha, speed)
+---    local time = globals.realtime() * speed
+---    return math.floor(min_alpha + (max_alpha - min_alpha) * (math.sin(time) * 0.5 + 0.5))
+---end
+
+local function gradient_text(color1, color2, text, speed)
+    local time = globals.realtime() * speed
+    local gradient_str = ""
+    local text_length = #text
+
+    local position = - 0.5 * (1 - math.cos(time))
+
+    for i = 1, text_length do
+        local index = i
+        local char = text:sub(i, i)
+        
+        local t = (math.sin(time + (index / text_length) * math.pi) + 1) / 2
+        local r = math.floor(color1[1] * t + color2[1] * (1 - t))
+        local g = math.floor(color1[2] * t + color2[2] * (1 - t))
+        local b = math.floor(color1[3] * t + color2[3] * (1 - t))
+        
+        gradient_str = gradient_str .. string.format("\a%02X%02X%02XFF%s", r, g, b, char)
+    end
+    
+    return gradient_str
+end
+
+local function render_watermark()
+    local screen_x, screen_y = client.screen_size()
+    local start_x = screen_x / 2
+    local y = screen_y - 15
+    local text = gradient_text({139, 0, 0}, {0, 0, 0}, "| igrok beta |", 2.33)
+    renderer.text(start_x, y, 255, 255, 255, 255, "40000", nil, text)
 end
 
 local config_cfg = {lua_menu, antiaim_system}
@@ -1803,8 +1918,6 @@ end)
 
 client.set_event_callback("pvs_animation", fix_pvs_animation)
 
-client.set_event_callback("console_input", handle_console_input)
-
 client.set_event_callback('paint', function()
     if not entity.is_alive(entity.get_local_player()) then return end
     if lua_menu.visuals.cross_ind:get() then
@@ -1813,8 +1926,9 @@ client.set_event_callback('paint', function()
 
     ragebot_logs()
 
-    text_fade_animation(25, center[2] - 20, -1, {r=200, g=200, b=200, a=255}, {r=150, g=150, b=150, a=255}, "I G R O K", "")
-    renderer.text(25 + renderer.measure_text('', 'I G R O K '), center[2] - 20, 200, 200, 200, 255, '', 0, '\aB94A4AFF[BETA]')
+    clantag()
+
+    render_watermark()
 
     thirdperson(lua_menu.misc.third_person:get() and lua_menu.misc.third_person_value:get() or nil)
     aspectratio(lua_menu.misc.aspectratio:get() and lua_menu.misc.aspectratio_value:get()/100 or nil)
@@ -1826,9 +1940,11 @@ client.set_event_callback('paint', function()
     end
 
     if lua_menu.misc.airqsbind:get() and lua_menu.misc.airqs:get() then
-        renderer.indicator(255, 255, 255, 255, 'QS')
+        renderer.indicator(255, 255, 255, 255, 'AAS')
     end
 end)
+
+client.set_event_callback("player_death", trashtalk)
 
 client.set_event_callback('shutdown', function()
     thirdperson(150)
